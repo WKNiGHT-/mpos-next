@@ -57,7 +57,7 @@ class Monitoring extends Base {
    **/
   public function isDisabled($name) {
     $aStatus = $this->getStatus($name . '_disabled');
-    return $aStatus['value'];
+    return $aStatus['value'] ?? null;
   }
 
   /**
@@ -67,7 +67,7 @@ class Monitoring extends Base {
    **/
   public function getLastCronStarted($name) {
     $aStatus = $this->getStatus($name . '_starttime');
-    return $aStatus['value'];
+    return $aStatus['value'] ?? null;
   }
 
   /**
