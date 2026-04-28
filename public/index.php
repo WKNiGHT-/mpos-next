@@ -88,7 +88,7 @@ if ($config['memcache']['enabled'] && $config['mc_antidos']['enabled']) {
 // Got past rate limiter and session manager
 // show last logged in popup if it's still set
 if (@$_GET['clp'] == 1 && @$_SESSION['last_ip_pop']) unset($_SESSION['last_ip_pop']);
-if (count(@$_SESSION['last_ip_pop']) == 2) {
+if (isset($_SESSION['last_ip_pop']) && is_countable($_SESSION['last_ip_pop']) && count($_SESSION['last_ip_pop']) == 2) {
   $data = $_SESSION['last_ip_pop'];
   $ip = filter_var($data[0], FILTER_VALIDATE_IP);
   $time = date("l, F jS \a\\t g:i a", $data[1]);

@@ -9,9 +9,9 @@
     ],
     "require": {
         "php": "^8.3",
-        "google/recaptcha": "~1.1",
-        "smarty/smarty": "^4.0"
+        "google/recaptcha": "~1.1"
     },
+    "_comment_smarty": "Phase 3A will add smarty/smarty ^4.0 here AND wire it in cleanly. Removed for Phase 1C because upstream's include/autoloader.inc.php auto-loads vendor/autoload.php, which makes Composer's classmap serve Smarty 4's Smarty_Internal_* into V3's Smarty class and crash with an LSP method-signature mismatch. Keeping smarty 4 out of vendor/ until that wire-in is done.",
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "phpcompatibility/php-compatibility": "^9.3",
