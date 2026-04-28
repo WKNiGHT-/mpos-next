@@ -9,7 +9,11 @@ if (file_exists(INCLUDE_DIR . '/../vendor/autoload.php')) {
 }
 
 // Default classes
-require_once(INCLUDE_DIR . '/lib/KLogger.php');
+// Phase 3: bundled v0.2 KLogger replaced by katzgrau/klogger ^1.2 via Composer.
+// The shim class below re-exposes the v0.2 API (instance() factory, integer
+// level constants, logInfo/logFatal/etc.) over the new PSR-3 implementation
+// so the 195 existing callsites continue to work unchanged.
+require_once(CLASS_DIR . '/klogger_compat.class.php');
 require_once(CLASS_DIR . '/logger.class.php');
 require_once(CLASS_DIR . '/debug.class.php');
 if ($config['mysql_filter']) {
