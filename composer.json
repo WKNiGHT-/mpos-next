@@ -1,9 +1,6 @@
 {
-    "name": "MPOS/php-mpos",
+    "name": "mpos/php-mpos",
     "description": "MPOS stands for Mining Portal Open Source. A unified mining interface for various Scrypt and SHA256d Crypto-currencies!",
-    "require-dev": {
-        "codeception/codeception": "~2.0"
-    },
     "authors": [
         {
             "name": "Sebastian Grewe",
@@ -11,6 +8,28 @@
         }
     ],
     "require": {
-        "google/recaptcha": "~1.1"
+        "php": "^8.3",
+        "google/recaptcha": "~1.1",
+        "smarty/smarty": "^4.0"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpstan/phpstan": "^1.12",
+        "rector/rector": "^1.2",
+        "squizlabs/php_codesniffer": "^3.10"
+    },
+    "_comment_codeception": "Upstream had codeception/codeception ~2.0 here. Codeception 2.x explicitly requires php >=5.4 <8.0 (see composer install conflict log) so it cannot coexist with our PHP 8.3 platform requirement. Removed to unblock Phase 1A; revisit when modernizing the test harness (Codeception 5.x supports PHP 8.x but is a major upgrade).",
+    "scripts": {
+        "rector-dry": "rector process --dry-run",
+        "rector": "rector process",
+        "phpcs": "phpcs",
+        "phpstan": "phpstan analyse"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

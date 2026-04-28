@@ -1,0 +1,20 @@
+parameters:
+    level: 0
+    paths:
+        - cronjobs
+        - scripts
+        - include/classes
+        - include/pages
+        - include/config
+        - public/healthcheck.php
+    excludePaths:
+        - include/smarty
+        - include/lib
+        - templates/compile
+        - templates/cache
+        - tests
+        - upgrade
+        - vendor
+        - logs
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false

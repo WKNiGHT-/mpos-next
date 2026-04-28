@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help up down restart build rebuild logs logs-web logs-db ps shell mysql health bootstrap-config php-lint composer cron-% clean nuke
+.PHONY: help up down restart build rebuild logs logs-web logs-db ps shell mysql health bootstrap-config php-lint composer composer-install rector-dry rector phpcs phpstan cron-% clean nuke
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_%-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[1m%-16s\033[0m %s\n", $$1, $$2}'
@@ -66,6 +66,21 @@ php-lint: ## Syntax-lint every PHP file (sequential; reports each fatal with fil
 
 composer: ## Run composer inside the web container (e.g. make composer ARGS="require monolog/monolog")
 	docker compose exec web composer $(ARGS)
+
+composer-install: ## Install composer deps (runtime + dev tools)
+	docker compose exec -T web composer install --no-interaction --prefer-dist
+
+rector-dry: ## Show what Rector would change (no writes)
+	docker compose exec -T web vendor/bin/rector process --dry-run
+
+rector: ## Apply Rector PHP 8.3 upgrade rules
+	docker compose exec -T web vendor/bin/rector process
+
+phpcs: ## Run PHPCS / PHPCompatibility against PHP 8.3
+	docker compose exec -T web vendor/bin/phpcs
+
+phpstan: ## Run PHPStan static analysis (level 0 baseline)
+	docker compose exec -T web vendor/bin/phpstan analyse
 
 cron-%: ## Run a named cronjob (e.g. make cron-statistics, make cron-payouts)
 	docker compose exec web php cronjobs/$*.php
