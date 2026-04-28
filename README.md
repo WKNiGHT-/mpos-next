@@ -1,12 +1,29 @@
-[![Build Status](https://travis-ci.org/MPOS/php-mpos.png?branch=master)](https://travis-ci.org/MPOS/php-mpos) [![Code Climate](https://codeclimate.com/github/MPOS/php-mpos/badges/gpa.svg)](https://codeclimate.com/github/MPOS/php-mpos) [![Code Coverage](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=master) master<br />
-[![Build Status](https://travis-ci.org/MPOS/php-mpos.png?branch=development)](https://travis-ci.org/MPOS/php-mpos) [![Code Coverage](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/coverage.png?b=development)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=development) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/quality-score.png?b=development)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=development)  development
+# MPOS Next
 
-Modernized fork (PHP 8.3 + Docker)
-==================================
+> Modernized MPOS fork for PHP 8.3, Docker, and private mining pool operators.
 
-This fork brings MPOS up to a modern PHP/MySQL stack and ships with a self-contained Docker dev environment. The upstream project targeted PHP 5.4 and assumed a bare-metal Apache install; that all still works, but the fast path is now Docker.
+Run your own Bitcoin mining pool on modern infrastructure in minutes.
 
-**Quickstart (3 commands):**
+**Status**
+
+- Actively maintained fork
+- PHP 8.3 compatible
+- Docker-first development
+- Composer-managed dependencies
+- Smarty 5 rendering with legacy fallback
+- Memcached cache layer
+
+## Credit
+
+This is a maintained modernization fork of the original MPOS project.
+All original credit belongs to the MPOS team and contributors.
+
+- **Original project:** https://github.com/MPOS/php-mpos
+- **Modernization work:** WKNiGHT
+
+## Quickstart
+
+3 commands to a working local instance:
 
 ```bash
 cp .env.example .env
@@ -34,8 +51,11 @@ You should see five green checks (PHP 8.3, mysqli, memcached, MySQL connection, 
 
 **Don't deploy these defaults to the public internet** — they're for local dev only. For full Docker docs (troubleshooting, reset, useful Make targets), see [`README-DOCKER.md`](README-DOCKER.md).
 
-Modernized architecture
------------------------
+## Screenshots
+
+Screenshots coming soon.
+
+## Architecture
 
 Four containers wired up by `docker-compose.yml`:
 
@@ -57,8 +77,27 @@ Four containers wired up by `docker-compose.yml`:
 
 **Config bootstrap:** `scripts/bootstrap-config.php` reads `include/config/global.inc.dist.php`, swaps in Docker service hostnames (`mysql`, `memcached`) plus DB credentials from the container env (`MPOS_DB_HOST`/`USER`/`PASS`/`NAME`), generates fresh random `SALT` and `SALTY` values, lints the result, and writes `include/config/global.inc.php` (which is gitignored). Idempotent — re-runs are no-ops unless `--force`'d.
 
-Developer notes
----------------
+## Roadmap
+
+**Completed**
+
+- PHP 8.3 modernization (parse-level fatals, runtime deprecations, optional-before-required parameters, dynamic property writes, return-type mismatches)
+- Docker dev environment (PHP 8.3 + Apache, MySQL 8, memcached, phpMyAdmin)
+- Composer dependency management (`smarty/smarty`, `michelf/php-markdown`, `katzgrau/klogger`, `google/recaptcha`)
+- Smarty 5 rendering with namespaced `\Smarty\Smarty` (legacy V3 retained as fallback)
+- Memcache → Memcached migration (native ext-memcached on every platform)
+- DB connection hardening (clean error reporting, utf8mb4 enforcement, null-safe read-only check)
+- Documentation refresh
+
+**Future**
+
+- Mobile_Detect Composer migration (`mobiledetect/mobiledetectlib:^4`)
+- SwiftMailer replacement with Symfony Mailer (`symfony/mailer`)
+- Frontend modernization (jQuery 2.0.3 → 3.7.x, plugin audit)
+- Installation wizard polish
+- Optional Bitcoin Core / node-first deployment profiles
+
+## Developer notes
 
 ```bash
 make help                  # all available targets
@@ -92,8 +131,7 @@ make nuke                  # stop and DELETE all data (mysql volume too)
 - `make phpcs` — PHPCompatibility scan against PHP 8.3 target.
 - `make phpstan` — level-0 baseline static analysis.
 
-Upgrade notes (legacy → modernized)
------------------------------------
+## Upgrade notes (legacy → MPOS Next)
 
 If you're coming from upstream MPOS or an older fork:
 
@@ -107,8 +145,7 @@ If you're coming from upstream MPOS or an older fork:
 | **DB** | Connection setup (`include/database.inc.php`) hardened: connect failures are now caught and rendered as a clean message instead of leaking a PHP backtrace; `SET NAMES utf8mb4` is forced on the active connection; the read-only check is null-safe. |
 | **Templates** | Not touched. Phase 3B added controller-side `$_POST` defaults for the registration form to silence Smarty 5 "Undefined array key" warnings without editing `.tpl` files. |
 
-Troubleshooting
----------------
+## Troubleshooting
 
 For Docker-stack issues (build failures, MySQL not ready, port collisions, permission errors on `templates_c/`, healthcheck failures), see [`README-DOCKER.md`](README-DOCKER.md). The same file documents `make nuke` for a full reset.
 
@@ -121,6 +158,19 @@ docker compose exec web php scripts/bootstrap-config.php --force
 ```
 
 (The old config gets backed up next to it as `global.inc.php.bak.<timestamp>`.)
+
+## Contributing to MPOS Next
+
+PRs welcome — modernization is an ongoing effort and there are clear next steps on the roadmap above.
+
+Ground rules:
+
+- **Preserve legacy compatibility.** The goal is to modernize without breaking existing pool operators. If a change has user-visible consequences (config keys renamed, schema migrated, public APIs altered), open an issue first.
+- **No broad rewrites without discussion.** Architectural changes get an issue or draft PR before code; reviewers shouldn't be surprised by a 2 000-line diff.
+- **One library or subsystem per PR.** Smaller PRs are easier to review, easier to revert if needed, and far easier to bisect later. The Composer migration phases in `CHANGELOG.md` are the model.
+- **Keep `make php-lint` and `make health` green.** PRs that introduce regressions in either should explain why in the description.
+
+For upstream-bound improvements that aren't fork-specific, the original [MPOS contributing guide](https://github.com/MPOS/php-mpos) still applies; see the legacy `Contributing` section below.
 
 ---
 

@@ -1,0 +1,1 @@
+MPOS Next — modernized MPOS fork for PHP 8.3, Docker, Composer, Smarty 5, and private mining pool operators.
