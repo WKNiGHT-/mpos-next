@@ -1,6 +1,129 @@
 [![Build Status](https://travis-ci.org/MPOS/php-mpos.png?branch=master)](https://travis-ci.org/MPOS/php-mpos) [![Code Climate](https://codeclimate.com/github/MPOS/php-mpos/badges/gpa.svg)](https://codeclimate.com/github/MPOS/php-mpos) [![Code Coverage](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=master) master<br />
 [![Build Status](https://travis-ci.org/MPOS/php-mpos.png?branch=development)](https://travis-ci.org/MPOS/php-mpos) [![Code Coverage](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/coverage.png?b=development)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=development) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/MPOS/php-mpos/badges/quality-score.png?b=development)](https://scrutinizer-ci.com/g/MPOS/php-mpos/?branch=development)  development
 
+Modernized fork (PHP 8.3 + Docker)
+==================================
+
+This fork brings MPOS up to a modern PHP/MySQL stack and ships with a self-contained Docker dev environment. The upstream project targeted PHP 5.4 and assumed a bare-metal Apache install; that all still works, but the fast path is now Docker.
+
+**Quickstart (3 commands):**
+
+```bash
+cp .env.example .env
+make up
+make bootstrap-config
+```
+
+Then check everything is healthy:
+
+```bash
+make health
+```
+
+You should see five green checks (PHP 8.3, mysqli, memcached, MySQL connection, memcached connection).
+
+**URLs and dev credentials** (defaults — override in `.env` if you have port conflicts):
+
+| Service        | URL                      | Login                          |
+| -------------- | ------------------------ | ------------------------------ |
+| Web UI         | http://localhost:8080    | _MPOS app account_             |
+| phpMyAdmin     | http://localhost:8081    | `root` / `mpos_root`           |
+| Healthcheck    | http://localhost:8080/healthcheck.php | _none_           |
+| MySQL (host)   | `localhost:3306`         | `mpos` / `mpos` (db: `mpos`)   |
+| Memcached      | `localhost:11211`        | _no auth_                      |
+
+**Don't deploy these defaults to the public internet** — they're for local dev only. For full Docker docs (troubleshooting, reset, useful Make targets), see [`README-DOCKER.md`](README-DOCKER.md).
+
+Modernized architecture
+-----------------------
+
+Four containers wired up by `docker-compose.yml`:
+
+| Service       | Image                       | Role                                                                |
+| ------------- | --------------------------- | ------------------------------------------------------------------- |
+| `web`         | PHP 8.3 + Apache (custom)   | Application runtime (DocumentRoot = `public/`, mod_rewrite, mod_php) |
+| `mysql`       | `mysql:8.0`                 | Database (utf8mb4 server-side; schema auto-loads `sql/000_base_structure.sql` on first boot) |
+| `memcached`   | `memcached:1.6-alpine`      | Cache layer (consumed by `StatsCache`, `mc_antidos` rate limiter)   |
+| `phpmyadmin`  | `phpmyadmin:5`              | DB browser, dev convenience                                         |
+
+**Composer** (`composer.json` / `vendor/`) replaces several bundled libraries with managed packages:
+
+- `smarty/smarty:^5.0` — modern Smarty 5 instantiated via the namespaced `\Smarty\Smarty` class. The legacy bundled Smarty 3.1.16 stays under `include/smarty/` as a safety fallback (`include/smarty.inc.php` branches on `class_exists('\Smarty\Smarty')`); only one is loaded per request, the namespacing keeps them from colliding.
+- `michelf/php-markdown:^2.0` — same author and namespace (`\Michelf\Markdown`) as the bundled file it replaced.
+- `katzgrau/klogger:^1.2` — PSR-3 rewrite of the original logger. `include/classes/klogger_compat.class.php` re-exposes the legacy v0.2 API (`KLogger::instance(...)`, integer level constants, `logInfo()`/`logError()`) on top of it, so the ~195 callsites across cronjobs and controllers continue to work unchanged.
+- `google/recaptcha:^1.1` — already on Composer upstream; preserved.
+
+**Cache layer (Memcached):** the legacy Windows-only `Memcache` shim was deleted; the codebase now uses native PHP `ext-memcached` everywhere. SASL is gated behind `$config['memcache']['sasl']`.
+
+**Config bootstrap:** `scripts/bootstrap-config.php` reads `include/config/global.inc.dist.php`, swaps in Docker service hostnames (`mysql`, `memcached`) plus DB credentials from the container env (`MPOS_DB_HOST`/`USER`/`PASS`/`NAME`), generates fresh random `SALT` and `SALTY` values, lints the result, and writes `include/config/global.inc.php` (which is gitignored). Idempotent — re-runs are no-ops unless `--force`'d.
+
+Developer notes
+---------------
+
+```bash
+make help                  # all available targets
+make logs                  # tail logs from all services
+make logs-web              # web container only
+make logs-db               # mysql only
+make shell                 # bash inside the web container
+make mysql                 # mysql client inside the mysql container
+make php-lint              # syntax-lint every .php file (skips vendored libs)
+make composer ARGS="…"     # run composer in the web container
+make composer-install      # install/refresh dev tools (rector, phpcs, phpstan)
+make rector-dry            # inspect what Rector would change
+make phpcs                 # PHPCompatibility scan against PHP 8.3
+make cron-statistics       # run cronjobs/statistics.php inside the web container
+make cron-tickerupdate     # …or any other cron
+make nuke                  # stop and DELETE all data (mysql volume too)
+```
+
+**Where logs live:**
+
+- Application + cron logs: `logs/<cron_name>/log_YYYY-MM-DD.txt` (KLogger, gitignored)
+- Apache + PHP errors: visible via `make logs-web` (routed to stderr by `docker/php.ini`)
+- MySQL: `make logs-db`
+
+**Running cronjobs by hand:** `make cron-<name>` (e.g. `make cron-statistics`). Cronjobs run inside the web container and use the bootstrapped `include/config/global.inc.php`.
+
+**Linting & static analysis:**
+
+- `make php-lint` — sequential `php -l` over every project file; reports each fatal with file + line.
+- `make rector-dry` — inspect Rector's PHP-8.3-upgrade suggestions without writing.
+- `make phpcs` — PHPCompatibility scan against PHP 8.3 target.
+- `make phpstan` — level-0 baseline static analysis.
+
+Upgrade notes (legacy → modernized)
+-----------------------------------
+
+If you're coming from upstream MPOS or an older fork:
+
+| Area | Change |
+| --- | --- |
+| **PHP** | Bumped from 5.4 → **8.3**. All parse-level fatals (curly-brace string offsets, `create_function`, PHP 4-style ctors, duplicate `static`) and most runtime deprecations (count(null), implicit-nullable params, dynamic property writes, return-type mismatches) have been mopped up. |
+| **Cache** | The legacy `Memcache` (ext-memcache) shim is **gone**. Runtime uses native `ext-memcached` on every platform. |
+| **Smarty** | Active runtime is **Smarty 5** via Composer. Bundled Smarty 3.1.16 still on disk at `include/smarty/` as a fallback if `vendor/` is missing. **Templates were not modified** — the upgrade is invisible to template authors. Custom v3 plugins (`relative_date`, `seconds_to_hhmmss`, `seconds_to_words`) are auto-registered for v5; PHP built-ins used as modifiers (`file_exists`, `count`, `strlen`, `round`, `explode`) are explicitly registered. |
+| **Markdown** | Bundled `Michelf/Markdown.php` → `michelf/php-markdown:^2.0` via Composer. Same namespace, same `\Michelf\Markdown::defaultTransform()` API — controllers untouched. |
+| **Logger** | Bundled v0.2 `KLogger.php` → `katzgrau/klogger:^1.2` via Composer. The shim at `include/classes/klogger_compat.class.php` keeps the v0.2 API (`KLogger::instance(...)`, `logInfo()`, integer level constants) callable across the 195 existing call sites. |
+| **DB** | Connection setup (`include/database.inc.php`) hardened: connect failures are now caught and rendered as a clean message instead of leaking a PHP backtrace; `SET NAMES utf8mb4` is forced on the active connection; the read-only check is null-safe. |
+| **Templates** | Not touched. Phase 3B added controller-side `$_POST` defaults for the registration form to silence Smarty 5 "Undefined array key" warnings without editing `.tpl` files. |
+
+Troubleshooting
+---------------
+
+For Docker-stack issues (build failures, MySQL not ready, port collisions, permission errors on `templates_c/`, healthcheck failures), see [`README-DOCKER.md`](README-DOCKER.md). The same file documents `make nuke` for a full reset.
+
+If pages 500 with no body content: `make logs-web | tail -50` — `display_errors` is **off** in the dev image (so deprecation noise doesn't poison HTTP responses); errors are routed to stderr instead.
+
+If `make bootstrap-config` says config already exists, force-regen with:
+
+```bash
+docker compose exec web php scripts/bootstrap-config.php --force
+```
+
+(The old config gets backed up next to it as `global.inc.php.bak.<timestamp>`.)
+
+---
+
 Description
 ===========
 
