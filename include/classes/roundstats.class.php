@@ -222,7 +222,7 @@ class RoundStats extends Base {
   /**
    * Get USER last blocks from height for admin panel
    **/
-  public function getUserReportBlocksFoundHeight($iHeight=0, $limit=10, $iUser) {
+  public function getUserReportBlocksFoundHeight($iHeight, $limit, $iUser) {
     $stmt = $this->mysqli->prepare("
       SELECT
         b.height, b.shares
@@ -239,7 +239,7 @@ class RoundStats extends Base {
   /**
    * Get shares for block height for user admin panel
    **/
-  public function getRoundStatsForUser($iHeight=0, $iUser) {
+  public function getRoundStatsForUser($iHeight, $iUser) {
     $stmt = $this->mysqli->prepare("
       SELECT
         s.valid,
@@ -258,7 +258,7 @@ class RoundStats extends Base {
   /**
    * Get credit transactions for round block height for admin panel
    **/
-  public function getUserRoundTransHeight($iHeight=0, $iUser) {
+  public function getUserRoundTransHeight($iHeight, $iUser) {
     $this->debug->append("STA " . __METHOD__, 4);
     $stmt = $this->mysqli->prepare("
       SELECT

@@ -538,7 +538,7 @@ class Statistics extends Base {
    * @param last_paid_pps_id int Last paid out share by pps_payout cron
    * @return data int Sum of unpaid diff1 shares
    **/
-  public function getUserUnpaidPPSShares($username, $account_id=NULL, $last_paid_pps_id) {
+  public function getUserUnpaidPPSShares($username, $account_id, $last_paid_pps_id) {
     $this->debug->append("STA " . __METHOD__, 4);
     if ($this->getGetCache() && $data = $this->memcache->get(__FUNCTION__ . $account_id)) return $data;
     $stmt = $this->mysqli->prepare("

@@ -73,7 +73,7 @@ class Share Extends Base {
    * @param current_upstream int Current upstream accepted share
    * @return data int Total amount of counted shares
    **/
-  public function getRoundShares($previous_upstream=0, $current_upstream) {
+  public function getRoundShares($previous_upstream, $current_upstream) {
     $stmt = $this->mysqli->prepare("SELECT
       IFNULL(SUM(IF(s.difficulty=0, POW(2, (" . $this->config['difficulty'] . " - 16)), s.difficulty)), 0) AS total
       FROM $this->table AS s
@@ -93,7 +93,7 @@ class Share Extends Base {
    * @param limit int Limit to this amount of shares for PPLNS
    * @return data array username, valid and invalid shares from account
    **/
-  public function getSharesForAccounts($previous_upstream=0, $current_upstream) {
+  public function getSharesForAccounts($previous_upstream, $current_upstream) {
     $stmt = $this->mysqli->prepare("
       SELECT
         a.id,

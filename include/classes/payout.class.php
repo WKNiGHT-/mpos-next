@@ -22,7 +22,7 @@ class Payout Extends Base {
    * @param strToken string Token to confirm
    * @return data mixed Inserted ID or false
    **/
-  public function createPayout($account_id=NULL, $strToken) {
+  public function createPayout($account_id, $strToken) {
     $stmt = $this->mysqli->prepare("INSERT INTO $this->table (account_id) VALUES (?)");
     if ($stmt && $stmt->bind_param('i', $account_id) && $stmt->execute()) {
       $insert_id = $stmt->insert_id;
