@@ -1,0 +1,12 @@
+.git
+.gitignore
+.idea
+.vscode
+.env
+*.log
+node_modules
+vendor
+public/templates/compile/*
+public/templates/cache/*
+cronjobs/logs/*.txt
+cronjobs/logs/*.txt.*.gz

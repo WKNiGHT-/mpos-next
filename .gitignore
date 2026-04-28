@@ -24,9 +24,17 @@
 
 # IDE Settings
 /.idea/*
+/.vscode/*
 .buildpath
 .project
 .settings
+
+# Local environment (Docker dev — Phase 0)
+/.env
+
+# OS noise (Phase 0)
+.DS_Store
+Thumbs.db
 
 # Site specific Files
 /public/robots.txt

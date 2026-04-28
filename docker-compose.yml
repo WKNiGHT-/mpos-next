@@ -1,0 +1,81 @@
+name: mpos
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mpos-web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      MPOS_DB_HOST: mysql
+      MPOS_DB_NAME: ${MYSQL_DATABASE:-mpos}
+      MPOS_DB_USER: ${MYSQL_USER:-mpos}
+      MPOS_DB_PASS: ${MYSQL_PASSWORD:-mpos}
+      MPOS_MEMCACHED_HOST: memcached
+    depends_on:
+      mysql:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+    networks: [mpos]
+
+  mysql:
+    image: mysql:8.0
+    container_name: mpos-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mpos_root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mpos}
+      MYSQL_USER: ${MYSQL_USER:-mpos}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mpos}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Only the base schema is mounted for first-boot init. Migrations
+      # 001–011 in ./sql/ exist for upgrading older installs and are
+      # already subsumed by 000_base_structure.sql, so running them on a
+      # fresh DB causes duplicate-column errors.
+      - ./sql/000_base_structure.sql:/docker-entrypoint-initdb.d/000_base_structure.sql:ro
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-mpos_root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [mpos]
+
+  memcached:
+    image: memcached:1.6-alpine
+    container_name: mpos-memcached
+    ports:
+      - "${MEMCACHED_PORT:-11211}:11211"
+    networks: [mpos]
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: mpos-phpmyadmin
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mpos_root}
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [mpos]
+
+volumes:
+  mysql_data:
+
+networks:
+  mpos:
+    driver: bridge
