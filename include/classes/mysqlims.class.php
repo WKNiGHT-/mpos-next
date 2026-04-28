@@ -59,6 +59,7 @@ class mysqlims extends mysqli
      *
      * @return mysqli_stmt
      */
+    #[\ReturnTypeWillChange]
     public function prepare($query)
     {
         if (stripos($query, "SELECT") && stripos($query, "FOR UPDATE") === false && stripos($query, "INSERT") === false  && $this->slave !== false) {
@@ -78,6 +79,7 @@ class mysqlims extends mysqli
      * @return boolean
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function query($query, $resultmode = MYSQLI_STORE_RESULT)
     {
         if (stripos($query, "SELECT") && stripos($query, "FOR UPDATE") === false && stripos($query, "INSERT") === false && $this->slave !== false) {/* Use readonly server */

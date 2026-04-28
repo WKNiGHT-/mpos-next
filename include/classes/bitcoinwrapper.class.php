@@ -5,6 +5,7 @@ $defflip = (!cfip()) ? exit(header('HTTP/1.1 401 Unauthorized')) : 1;
  * We use a wrapper class around BitcoinClient to add
  * some basic caching functionality and some debugging
  **/
+#[\AllowDynamicProperties]
 class BitcoinWrapper extends BitcoinClient {
   public function __construct($type, $username, $password, $host, $debug_level, $debug_object, $memcache) {
     $this->type = $type;

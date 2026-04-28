@@ -285,7 +285,11 @@ $config['memcache']['keyprefix'] = 'mpos_';
 $config['memcache']['expiration'] = 90;
 $config['memcache']['splay'] = 15;
 $config['memcache']['force']['contrib_shares'] = false;
-$config['memcache']['sasl'] = false;
+// Phase 1G: was `false` — PHP 8 deprecates `false`->array auto-conversion
+// when the next two lines assign sub-keys. Empty array is the same
+// effective default (still !== true, so the SASL branch in statscache
+// stays gated on === true).
+$config['memcache']['sasl'] = [];
 $config['memcache']['sasl']['username'] = '';
 $config['memcache']['sasl']['password'] = '';
 

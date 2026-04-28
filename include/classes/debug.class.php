@@ -9,6 +9,7 @@ $defflip = (!cfip()) ? exit(header('HTTP/1.1 401 Unauthorized')) : 1;
  * @copyright Sebastian Grewe
  * @version 1.0
  * */
+#[\AllowDynamicProperties]
 class Debug {
 
     /**

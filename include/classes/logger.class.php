@@ -1,5 +1,6 @@
-<?php 
+<?php
 
+#[\AllowDynamicProperties]
 class Logger {
   private $KLogger;
   private $logging = false;

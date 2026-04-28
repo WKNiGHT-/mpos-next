@@ -51,6 +51,18 @@ require_once(INCLUDE_DIR . '/lib/swiftmailer/swift_required.php');
 
 // Detect device
 require_once(INCLUDE_DIR . '/lib/Mobile_Detect.php');
+// Phase 1G: bundled Mobile_Detect (1.x era) calls preg_match() against
+// its userAgent property in a tight loop. CLI/cron contexts have no
+// HTTP_USER_AGENT, so userAgent ends up null and PHP 8 emits a
+// "preg_match(): Passing null to parameter #2" deprecation hundreds
+// of times per cron run. Seeding an empty-string default at the call
+// boundary silences the deprecation without modifying the bundled lib.
+// The lib itself is scheduled for replacement in Phase 3 (mobiledetect/
+// mobiledetectlib ^4.0).
+// Note: must default to a non-empty string. Mobile_Detect's setUserAgent()
+// uses !empty() and rejects empty strings, so '' would still leave
+// $this->userAgent as null and the preg_match deprecations would still fire.
+$_SERVER['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'] ?? 'cli';
 $detect = new Mobile_Detect;
 
 if ($detect->isMobile()) {

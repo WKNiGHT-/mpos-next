@@ -6,6 +6,7 @@ $defflip = (!cfip()) ? exit(header('HTTP/1.1 401 Unauthorized')) : 1;
  * Can be enabled or disabled through site configuration
  * Also sets a default time if no time is passed to it to enforce caching
  **/
+#[\AllowDynamicProperties]
 class StatsCache {
   private $cache, $round;
 
