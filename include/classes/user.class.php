@@ -661,8 +661,15 @@ class User extends Base {
     setcookie(session_name(), '', time() - 42000);
     // Destroy the session.
     session_destroy();
-    // Enforce generation of a new Session ID and delete the old
-    session_regenerate_id(true);
+    // Enforce generation of a new Session ID and delete the old.
+    // Phase 1E: PHP 8 emits a warning if session_regenerate_id() is
+    // called when no session is active, which is exactly the state
+    // session_destroy() leaves us in. Guard the call so the warning
+    // stops without changing behavior — the regenerate is effectively
+    // a no-op here anyway since we just destroyed the session.
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
 
     // Enforce a page reload and point towards login with referrer included, if supplied
     $port = ($_SERVER["SERVER_PORT"] == "80" || $_SERVER["SERVER_PORT"] == "443") ? "" : (":".$_SERVER["SERVER_PORT"]);
