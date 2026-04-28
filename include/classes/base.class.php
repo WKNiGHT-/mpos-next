@@ -7,6 +7,7 @@ $defflip = (!cfip()) ? exit(header('HTTP/1.1 401 Unauthorized')) : 1;
  * It supplies some basic features as cross-linking with other classes
  * after loading a newly created class.
  **/
+#[\AllowDynamicProperties]
 class Base {
   private $sError = '';
   private $sCronError = '';

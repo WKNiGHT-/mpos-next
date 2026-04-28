@@ -38,7 +38,6 @@ class Tools extends Base {
    **/
   public function getApi($url, $target, $auth=NULL) {
     static $ch = null;
-    static $ch = null;
     if (is_null($ch)) {
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);

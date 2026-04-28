@@ -1535,9 +1535,12 @@ class SmartyCompilerException extends SmartyException
     }
     /**
      * The line number of the template error
-     * @type int|null
+     * @type int
+     * Note: PHP 8.1+ typed Exception::$line as int; the redeclaration
+     * here must match. Default of 0 (was null) is harmless because
+     * Exception subclasses always have $line populated by the constructor.
      */
-    public $line = null;
+    public int $line = 0;
     /**
      * The template source snippet relating to the error
      * @type string|null
