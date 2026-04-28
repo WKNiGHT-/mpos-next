@@ -16,6 +16,15 @@ if ($setting->getValue('lock_registration') && $setting->getValue('disable_invit
     $smarty->assign("recaptcha_public_key", $recaptcha_public_key);
   }
 
+  // Phase 3B: the registration template reads form-field defaults via
+  // {$smarty.post.X} (which Smarty 5 compiles to $_POST['X']), so on a
+  // first GET — when no form has been submitted — those keys don't
+  // exist and Smarty 5 emits "Undefined array key" warnings. Seed
+  // empty defaults so the template renders without warnings; real
+  // submits still overwrite via the regular $_POST flow. Array-union
+  // (+=) only adds keys that aren't already present.
+  $_POST += ['username' => '', 'email1' => '', 'email2' => '', 'coinaddress' => ''];
+
   // Load news entries for Desktop site and unauthenticated users
   $smarty->assign("CONTENT", "default.tpl");
 }
