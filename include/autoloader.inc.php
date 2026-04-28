@@ -26,7 +26,12 @@ require_once(CLASS_DIR . '/coins/coin_base.class.php');
 require_once(CLASS_DIR . '/coin_address.class.php');
 require_once(CLASS_DIR . '/setting.class.php');
 require_once(INCLUDE_DIR . '/version.inc.php');
-if (PHP_OS == 'WINNT') require_once(CLASS_DIR . '/memcached.class.php');
+// Phase 2: removed the WINNT-only memcached.class.php require. That
+// wrapper was a 2014-era shim that re-exported the legacy ext-memcache
+// class as `Memcached` for Windows hosts that didn't have ext-memcached.
+// Modern PHP on every platform ships ext-memcached via PECL, so the
+// shim is dead code; runtime now uses the native Memcached class
+// directly on every platform.
 
 // Now decide on which coin class to load and instantiate
 if (file_exists(CLASS_DIR . '/coins/coin_' . $config['algorithm'] . '.class.php')) {

@@ -15,9 +15,8 @@ class StatsCache {
     if (! $config['memcache']['enabled'] ) {
       $this->debug->append("Not storing any values in memcache");
     } else {
-      if (PHP_OS == 'WINNT') {
-        require_once(CLASS_DIR . '/memcached.class.php');
-      }
+      // Phase 2: native PHP Memcached on every platform; the legacy
+      // Windows-only wrapper class was deleted.
       $this->cache = new Memcached();
       if ($config['memcache']['sasl'] === true) {
         $this->cache->setOption(Memcached::OPT_BINARY_PROTOCOL, true);

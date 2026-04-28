@@ -16,9 +16,8 @@ if (!class_exists('Memcached') && $config['memcache']['enabled']) {
 
 // if it's not enabled, test it if it exists, if it works -> error tell them to enable, -> otherwise notice it's disabled
 if (!$config['memcache']['enabled']) {
-  if (PHP_OS == 'WINNT') {
-    require_once(CLASS_DIR . 'memcached.class.php');
-  }
+  // Phase 2: native PHP Memcached on every platform; the legacy
+  // Windows-only wrapper class was deleted.
   if (class_exists('Memcached')) {
     $memcache_test = @new Memcached();
     if ($config['memcache']['sasl'] === true) {
