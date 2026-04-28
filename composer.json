@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.3",
         "google/recaptcha": "~1.1",
+        "michelf/php-markdown": "^2.0",
         "smarty/smarty": "^5.0"
     },
     "_comment_smarty": "Phase 3A bumped from the spec's ^4 to ^5 because the spec's class reference \\\\Smarty\\\\Smarty is namespaced and only exists in Smarty 5. Smarty 4's class is the unnamespaced global Smarty, which would collide with the bundled V3 still living under include/smarty/. Smarty 5's namespacing is what makes coexistence with V3 actually safe.",

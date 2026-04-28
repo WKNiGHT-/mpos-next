@@ -93,5 +93,9 @@ require_once(CLASS_DIR . '/api.class.php');
 require_once(CLASS_DIR . '/usersettings.class.php');
 require_once(CLASS_DIR . '/ipushnotification.interface.php');
 require_once(CLASS_DIR . '/pushnotification.class.php');
-require_once(INCLUDE_DIR . '/lib/Michelf/Markdown.php');
+// Phase 3: bundled Michelf/Markdown was replaced by `michelf/php-markdown:^2.0`
+// via Composer (vendor/michelf/php-markdown/). The classes (\Michelf\Markdown
+// and \Michelf\MarkdownExtra) live in the same namespace, so the existing
+// `use \Michelf\Markdown;` directives in page controllers resolve via
+// composer autoload without any further change.
 require_once(INCLUDE_DIR . '/lib/scrypt.php');
