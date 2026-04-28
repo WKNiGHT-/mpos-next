@@ -1,5 +1,20 @@
-<?php 
+<?php
 $defflip = (!cfip()) ? exit(header('HTTP/1.1 401 Unauthorized')) : 1;
+
+// Phase 3A: Composer autoload. Loaded here at the very top of the
+// runtime bootstrap (before any class is referenced) so modern Composer
+// packages — most importantly the namespaced \Smarty\Smarty 5 used by
+// include/smarty.inc.php — are resolvable. Wrapped in a file_exists
+// check so the app still parses if `composer install` has not been run
+// (you'll just get a "missing dependencies" failure later instead of a
+// silent fatal here). Note: include/autoloader.inc.php also calls this
+// file, but require_once makes the second call a no-op.
+$mposComposerAutoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($mposComposerAutoload)) {
+    require_once $mposComposerAutoload;
+}
+unset($mposComposerAutoload);
+
 // Used for performance calculations
 $dStartTime = microtime(true);
 

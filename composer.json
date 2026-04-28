@@ -9,9 +9,10 @@
     ],
     "require": {
         "php": "^8.3",
-        "google/recaptcha": "~1.1"
+        "google/recaptcha": "~1.1",
+        "smarty/smarty": "^5.0"
     },
-    "_comment_smarty": "Phase 3A will add smarty/smarty ^4.0 here AND wire it in cleanly. Removed for Phase 1C because upstream's include/autoloader.inc.php auto-loads vendor/autoload.php, which makes Composer's classmap serve Smarty 4's Smarty_Internal_* into V3's Smarty class and crash with an LSP method-signature mismatch. Keeping smarty 4 out of vendor/ until that wire-in is done.",
+    "_comment_smarty": "Phase 3A bumped from the spec's ^4 to ^5 because the spec's class reference \\\\Smarty\\\\Smarty is namespaced and only exists in Smarty 5. Smarty 4's class is the unnamespaced global Smarty, which would collide with the bundled V3 still living under include/smarty/. Smarty 5's namespacing is what makes coexistence with V3 actually safe.",
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "phpcompatibility/php-compatibility": "^9.3",

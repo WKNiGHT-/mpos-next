@@ -36,6 +36,14 @@
 .DS_Store
 Thumbs.db
 
+# Smarty 5 (Composer) runtime artifacts — Phase 3A
+/templates_c/*
+!/templates_c/.gitkeep
+/cache/*
+!/cache/.gitkeep
+/configs/*
+!/configs/.gitkeep
+
 # Site specific Files
 /public/robots.txt
 /public/sitemap.xml
