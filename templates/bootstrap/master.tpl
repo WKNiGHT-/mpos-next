@@ -24,7 +24,7 @@
   <script src="{$PATH}/js/jquery.min.js"></script>
   {* Phase 4D: jquery-migrate bridge surfaces deprecated jQuery 1.x/2.x calls in the browser console (warnings, no behavior change). Must load AFTER jquery and BEFORE any plugin. *}
   <script src="{$PATH}/js/jquery-migrate.min.js"></script>
-  <script src="{$PATH}/js/jquery.cookie.js"></script>
+  <script src="{$PATH}/js/js-cookie.min.js"></script>
   <script src="{$PATH}/js/jquery.md5.js"></script>
   <script src="{$PATH}/js/bootstrap.min.js"></script>
   <script src="{$PATH}/js/bootstrap-switch.min.js"></script>

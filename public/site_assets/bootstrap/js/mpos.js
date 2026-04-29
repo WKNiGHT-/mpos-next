@@ -27,7 +27,7 @@ $(document).ready(function() {
     	var md5motd = $.md5(document.getElementById('motd').innerHTML);
 		// Check if MOTD alert has been closed
 		//alert(md5motd);
-    	if( $.cookie('motd-box') === md5motd ){
+    	if( Cookies.get('motd-box') === md5motd ){
         	$('#motd').hide();
         	//alert('hidden');
     	}
@@ -37,7 +37,7 @@ $(document).ready(function() {
     	var md5lastlogin = $.md5(document.getElementById('lastlogin').innerHTML);
     	// Check if lastlogin alert has been closed
     	//alert(md5lastlogin);
-    	if( $.cookie('lastlogin-box') === md5lastlogin ){
+    	if( Cookies.get('lastlogin-box') === md5lastlogin ){
         	$('#lastlogin').hide();
         	//alert('hidden');
     	}
@@ -48,7 +48,7 @@ $(document).ready(function() {
     	var md5backend = $.md5(document.getElementById('backend').innerHTML);
     	// Check if Backend Issues alert has been closed
     	//alert(md5backend);
-    	if( $.cookie('backend-box') === md5backend ){
+    	if( Cookies.get('backend-box') === md5backend ){
         	$('#backend').hide();
         	//alert('hidden');
     	}
@@ -75,13 +75,13 @@ $(function() {
         //alert($(this).attr("id"));
         if ($(this).attr("id") === 'motd') {
         	var md5motd = $.md5(document.getElementById('motd').innerHTML);
-        	$.cookie('motd-box', md5motd, { path: '/' });
+        	Cookies.set('motd-box', md5motd, { path: '/' });
         } else if ($(this).attr("id") === 'lastlogin') {
         	var md5lastlogin = $.md5(document.getElementById('lastlogin').innerHTML);
-        	$.cookie('lastlogin-box', md5lastlogin, { path: '/' });
+        	Cookies.set('lastlogin-box', md5lastlogin, { path: '/' });
         } else if ($(this).attr("id") === 'backend') {
         	var md5backend = $.md5(document.getElementById('backend').innerHTML);
-        	$.cookie('backend-box', md5backend, { path: '/' });
+        	Cookies.set('backend-box', md5backend, { path: '/' });
         } else {
             //alert($(this).attr("id"));
         }
