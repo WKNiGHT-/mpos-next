@@ -125,6 +125,23 @@ make logs-web                    # Apache + PHP error log lives here
 
 `docker/php.ini` sets `display_errors=On` and routes `error_log` to stderr, so PHP errors should appear inline in `make logs-web`.
 
+### "Database version mismatch (Installed: X.Y.Z, Current: 1.0.3)" popup on every page
+
+The application compares the `DB_VERSION` row in the `settings` table against the constant defined in `include/version.inc.php`. The current `sql/000_base_structure.sql` correctly seeds `DB_VERSION = '1.0.3'` on a **fresh** MySQL volume, so a from-scratch `make up` lands at the right version automatically.
+
+If you see a mismatch popup with `Installed: 0.0.1` (or any other older version), your MySQL named volume (`mpos_mysql_data`) was first initialized **before** the upstream sync that updated the base schema. MySQL only runs `/docker-entrypoint-initdb.d/` on the **first** boot of an empty volume — every subsequent `make up` reuses whatever DB_VERSION value the original init wrote.
+
+Fix: rebuild from a clean volume.
+
+```bash
+make nuke                       # stops the stack and DELETES mpos_mysql_data
+make up                         # fresh MySQL re-runs sql/000_base_structure.sql
+make bootstrap-config --force   # regenerate include/config/global.inc.php
+make health
+```
+
+After that, `SELECT value FROM settings WHERE name = 'DB_VERSION';` should return `1.0.3` and the popup is gone.
+
 ### Smarty cache/compile permission errors
 
 ```bash
@@ -152,7 +169,9 @@ make bootstrap-config            # regenerate config (old one is gitignored)
 make health
 ```
 
-`global.inc.php` is **not** deleted by `make nuke` (it lives on the host, not in a docker volume). Delete it by hand if you want a true clean slate.
+`global.inc.php` is **not** deleted by `make nuke` (it lives on the host, not in a docker volume). Delete it by hand if you want a true clean slate, or run `make bootstrap-config ARGS=--force` to regenerate it (the old file gets a `.bak.<timestamp>` neighbor).
+
+**When to do this:** any time the contents of `sql/000_base_structure.sql` change. MySQL's `/docker-entrypoint-initdb.d/` only fires on the first boot of an empty volume, so a stale dev volume will silently keep whatever schema it was initialized with — most commonly seen as a "Database version mismatch" popup if `DB_VERSION` has bumped since first init.
 
 ---
 
