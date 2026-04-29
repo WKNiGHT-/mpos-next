@@ -237,15 +237,15 @@ $(document).ready(function(){
       dataType: 'json',
       cache : false,
       contentType : 'application/json; charset=utf-8',
-      type : 'GET',
-      success: function(data) {
-        refreshInformation(data);
-        refreshStaticData(data);
-        refreshBlockData(data);
-      },
-      complete: function() {
-        setTimeout(worker1, {/literal}{($GLOBAL.config.statistics_ajax_refresh_interval * 1000)|default:"10000"}{literal})
-      }
+      type : 'GET'
+    }).done(function(data) {
+      refreshInformation(data);
+      refreshStaticData(data);
+      refreshBlockData(data);
+    }).fail(function(jqXHR, textStatus, err) {
+      console.error(err);
+    }).always(function() {
+      setTimeout(worker1, {/literal}{($GLOBAL.config.statistics_ajax_refresh_interval * 1000)|default:"10000"}{literal});
     });
   })();
 
@@ -257,13 +257,13 @@ $(document).ready(function(){
       dataType: 'json',
       cache : false,
       contentType : 'application/json; charset=utf-8',
-      type : 'GET',
-      success: function(data) {
-        refreshWorkerData(data);
-      },
-      complete: function() {
-        setTimeout(worker2, {/literal}{($GLOBAL.config.statistics_ajax_long_refresh_interval * 1000)|default:"10000"}{literal})
-      }
+      type : 'GET'
+    }).done(function(data) {
+      refreshWorkerData(data);
+    }).fail(function(jqXHR, textStatus, err) {
+      console.error(err);
+    }).always(function() {
+      setTimeout(worker2, {/literal}{($GLOBAL.config.statistics_ajax_long_refresh_interval * 1000)|default:"10000"}{literal});
     });
   })();
   {/literal}{/if}{literal}
@@ -274,13 +274,13 @@ $(document).ready(function(){
   (function worker3() {
     $.ajax({
       url: url_balance,
-      dataType: 'json',
-      success: function(data) {
-        refreshBalanceData(data);
-      },
-      complete: function() {
-        setTimeout(worker3, {/literal}{($GLOBAL.config.statistics_ajax_long_refresh_interval * 1000)|default:"10000"}{literal})
-      }
+      dataType: 'json'
+    }).done(function(data) {
+      refreshBalanceData(data);
+    }).fail(function(jqXHR, textStatus, err) {
+      console.error(err);
+    }).always(function() {
+      setTimeout(worker3, {/literal}{($GLOBAL.config.statistics_ajax_long_refresh_interval * 1000)|default:"10000"}{literal});
     });
   })();
   {/literal}{/if}{literal}

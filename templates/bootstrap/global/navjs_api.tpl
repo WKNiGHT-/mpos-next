@@ -52,14 +52,14 @@ $(document).ready(function(){
   (function worker() {
     $.ajax({
       url: url,
-      dataType: 'json',
-      success: function(data) {
-        refreshInformation(data);
-      },
-      complete: function() {
-        setTimeout(worker, {/literal}{($GLOBAL.config.statistics_ajax_refresh_interval * 1000)|default:"1000"}{literal})
-      }
-  });
+      dataType: 'json'
+    }).done(function(data) {
+      refreshInformation(data);
+    }).fail(function(jqXHR, textStatus, err) {
+      console.error(err);
+    }).always(function() {
+      setTimeout(worker, {/literal}{($GLOBAL.config.statistics_ajax_refresh_interval * 1000)|default:"1000"}{literal});
+    });
  })();
 });
 {/literal}
